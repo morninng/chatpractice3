@@ -28,13 +28,18 @@
   var socket = io();
 
   $('form').submit(function(){
-    socket.emit('chat message', $('#m').val());
+
+    var data = {
+      message: $('#m').val(),
+      type: "userMessage"
+    }
+    socket.emit('chat_msg', data);
     $('#m').val('');
     return false;
   });
 
-  socket.on('chat message', function(msg){
-    $('#messages').append($('<li>').text(msg));
+  socket.on('msg_server', function(data){
+    $('#messages').append($('<li>').text(data.message));
   });
 
 </script>
