@@ -3,6 +3,8 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res) {
+
+  /*
   var data = {
     title: 'Hello, world!',
     id: 'abc123',
@@ -21,6 +23,9 @@ router.get('/', function(req, res) {
     }
   };
   res.render('index', data);
+*/
+  res.sendFile(__dirname + '/index.html');  
+
 });
 
 
