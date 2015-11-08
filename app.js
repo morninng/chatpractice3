@@ -22,7 +22,16 @@ app.use(myLogger);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+//app.set('view engine', 'jade');
+
+// ECT view engine setup
+var ECT = require('ect');
+var ectRenderer = ECT({ watch: true, root: __dirname + '/views', ext : '.ect' });
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ect');
+app.engine('ect', ectRenderer.render);
+
+
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
