@@ -8,19 +8,35 @@ var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
 });
 
-
-
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function (socket) {
   console.log('a user connected');
 
   socket.on('chat_msg', function(data){
-    console.log('message: ' + data.message);
+    if(socket.username){
+      data = {
+        username: socket.username,
+        message: data.message
+      }
+    }else{
+      data = {
+        message: data.message
+      }
+    }
     io.emit('msg_server', data);
   });
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
-
+  socket.on('set_name', function(data){
+    socket.username = data.name;
+    io.emit('setname_done', {name:data.name});
+    /*
+    socket.set('nickname', data.name, function(){
+      console.log('name: ' + data.name);
+      io.emit('setname_done', {name:data.name});
+    });
+*/
+  });
 });

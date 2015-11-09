@@ -30,5 +30,15 @@ router.get('/', function(req, res) {
 
 
 
+router.get('/chat_room', function(req, res) {
+
+  var data = {
+    title: 'chat room'
+  }
+  res.render('chat', data);
+
+});
+
+
 
 module.exports = router;
