@@ -31,7 +31,9 @@ io.sockets.on('connection', function (socket) {
   });
   socket.on('set_name', function(data){
     socket.username = data.name;
-    io.emit('setname_done', {name:data.name});
+    //socket.emit('setname_done', {name:data.name}); // sent all other than you
+ //   socket.broadcast.emit('setname_done', {name:data.name}); // sent all other than you
+    io.to(socket.id).emit('setname_done', {name:data.name});
     /*
     socket.set('nickname', data.name, function(){
       console.log('name: ' + data.name);
