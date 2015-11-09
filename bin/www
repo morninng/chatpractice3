@@ -3,17 +3,55 @@ var debug = require('debug')('chat3');
 var app = require('../app');
 
 app.set('port', process.env.PORT || 3000);
+/*
+var cors = require('cors');
+app.use(cors());
+*/
+
+
+
 
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
 });
 
+
 var io = require('socket.io').listen(server);
+/*
+io.configure( function(){
+    io.set('origin', '*');
+});
+*/
+io.set('origins',"*:*");
 
-io.sockets.on('connection', function (socket) {
-  console.log('a user connected');
 
+
+
+//var chat_infra = io.of("/chat_infra");
+var chat_infra = io;
+chat_infra.on('connection', function(socket){
+  console.log("chat infra connection");
+
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
+  });
+  socket.on('set_name', function(data){
+    console.log('set name called' + data.name);
+    console.log(socket.id);
+    socket.username = data.name;
+    //socket.emit('setname_done', {name:data.name}); // sent all other than you
+ //   socket.broadcast.emit('setname_done', {name:data.name}); // sent all other than you
+    chat_infra.to(socket.id).emit('setname_done', {name:data.name});
+
+  });
+});
+
+var chat_com = io.of("/chat_com");
+chat_com.on('connection', function(socket){
+  console.log("chat com connection");
   socket.on('chat_msg', function(data){
+    console.log('chat message called' + data.message);
+    console.log(socket.id);
     if(socket.username){
       data = {
         username: socket.username,
@@ -24,21 +62,10 @@ io.sockets.on('connection', function (socket) {
         message: data.message
       }
     }
-    io.emit('msg_server', data);
-  });
-  socket.on('disconnect', function(){
-    console.log('user disconnected');
-  });
-  socket.on('set_name', function(data){
-    socket.username = data.name;
-    //socket.emit('setname_done', {name:data.name}); // sent all other than you
- //   socket.broadcast.emit('setname_done', {name:data.name}); // sent all other than you
-    io.to(socket.id).emit('setname_done', {name:data.name});
-    /*
-    socket.set('nickname', data.name, function(){
-      console.log('name: ' + data.name);
-      io.emit('setname_done', {name:data.name});
-    });
-*/
+    chat_com.emit('msg_server', data);
   });
 });
+
+
+
+

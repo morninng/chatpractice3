@@ -1,5 +1,10 @@
 var express = require('express');
 var router = express.Router();
+var cors = require('cors');
+
+var corsOptions = {
+  origin: '*'
+};
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -30,7 +35,7 @@ router.get('/', function(req, res) {
 
 
 
-router.get('/chat_room', function(req, res) {
+router.get('/chat_room',cors(corsOptions), function(req, res) {
 
   var data = {
     title: 'chat room'

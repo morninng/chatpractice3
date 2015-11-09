@@ -11,15 +11,30 @@ var users = require('./routes/users');
 var birds = require('./routes/bird');
 
 var app = express();
-
+/*
+var cors = require('cors');
+var corsOptions = {
+  origin: '*'
+};
+app.use(cors(corsOptions));
+*/
+/*
 var myLogger = function(req, res, next){
     console.log("test log");
     next();
 }
 app.use(myLogger);
+*/
+console.log("app.js is called");
 
-
-
+app.use(function(req, res, next) {
+  console.log("access control allow origin set");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
+  next();
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
