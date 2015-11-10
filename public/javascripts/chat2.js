@@ -1,5 +1,6 @@
 
   var socket_infra = io.connect('http://127.0.0.1:3000');
+  //var socket_infra = io.connect('/');
 
 
   $(function(){
@@ -13,6 +14,7 @@
   });
 
   var socket_com = io.connect('http://127.0.0.1:3000/chat_com');
+  //var socket_com = io.connect('/chat_com');
 
   $('form').submit(function(){
     var data = {
