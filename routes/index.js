@@ -35,15 +35,19 @@ router.get('/', function(req, res) {
 
 
 
-router.get('/chat_room',cors(corsOptions), function(req, res) {
+router.get('/chat',cors(corsOptions), function(req, res) {
+  var data = {
+    title: 'chat communication '
+  }
+  res.render('chat', data);
+});
 
+router.get('/chat_room',cors(corsOptions), function(req, res) {
   var data = {
     title: 'chat room'
   }
-  res.render('chat', data);
-
+  res.render('chatroom', data);
 });
-
 
 
 module.exports = router;

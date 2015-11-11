@@ -1,14 +1,7 @@
 #!/usr/bin/env node
 var debug = require('debug')('chat3');
 var app = require('../app');
-
 app.set('port', process.env.PORT || 3000);
-/*
-var cors = require('cors');
-app.use(cors());
-*/
-
-
 
 
 var server = app.listen(app.get('port'), function() {
@@ -17,19 +10,15 @@ var server = app.listen(app.get('port'), function() {
 
 
 var io = require('socket.io').listen(server);
-/*
-io.configure( function(){
-    io.set('origin', '*');
-});
-*/
 io.set('origins',"*:*");
 
 
 
+(function(){
+
 
 //var chat_infra = io.of("/chat_infra");
-var chat_infra = io;
-chat_infra.on('connection', function(socket){
+io.on('connection', function(socket){
   console.log("chat infra connection");
 
   socket.on('disconnect', function(){
@@ -41,14 +30,13 @@ chat_infra.on('connection', function(socket){
     socket.username = data.name;
     //socket.emit('setname_done', {name:data.name}); // sent all other than you
  //   socket.broadcast.emit('setname_done', {name:data.name}); // sent all other than you
-    chat_infra.to(socket.id).emit('setname_done', {name:data.name});
-
+    io.to(socket.id).emit('setname_done', {name:data.name});
   });
-});
+  socket.on('join_room', function(room){
+    socket.join(room.name);
+    io.sockets.in(room.name).emit('user_entered', {name:socket.username});
+  });
 
-var chat_com = io.of("/chat_com");
-chat_com.on('connection', function(socket){
-  console.log("chat com connection");
   socket.on('chat_msg', function(data){
     console.log('chat message called' + data.message);
     console.log(socket.id);
@@ -62,10 +50,9 @@ chat_com.on('connection', function(socket){
         message: data.message
       }
     }
-    chat_com.emit('msg_server', data);
+    io.sockets.in(socket.room).emit('msg_server', data);
   });
 });
 
 
-
-
+}());
