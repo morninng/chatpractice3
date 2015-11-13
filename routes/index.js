@@ -49,5 +49,12 @@ router.get('/chat_room',cors(corsOptions), function(req, res) {
   res.render('chatroom', data);
 });
 
+router.get('/create_chat_room',cors(corsOptions), function(req, res) {
+  var data = {
+    title: 'create chat room'
+  }
+  res.render('createroom', data);
+});
+
 
 module.exports = router;
