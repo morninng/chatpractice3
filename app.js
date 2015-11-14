@@ -4,13 +4,23 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
 
+/*
+var io_session = require('express-socket.io-session');
+*/
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var birds = require('./routes/bird');
 
+
 var app = express();
+
+// console.log("connect = " + connect);
+// console.log("connect session = " + connect.session);
+// var sessionStore = new connect.session.MemoryStore();
+
 /*
 var cors = require('cors');
 var corsOptions = {
@@ -26,15 +36,15 @@ var myLogger = function(req, res, next){
 app.use(myLogger);
 */
 console.log("app.js is called");
-
+/*
 app.use(function(req, res, next) {
-  console.log("access control allow origin set");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
   next();
 });
+*/
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -52,11 +62,26 @@ app.engine('ect', ectRenderer.render);
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
+//app.use(bodyParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'html')));
+/*
+app.use(express.cookieParser('ABCDEFGHIJK'));
+app.use(express.session({key: 'express.sid', store: sessionStore}));
+*/
+app.use(session({
+  secret: 'ABCDEFGHIJK',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 30 * 60 * 1000
+  }
+  }));
+
+
 
 app.use('/', routes);
 app.use('/users', users);

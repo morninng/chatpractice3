@@ -3,21 +3,44 @@ var debug = require('debug')('chat3');
 var app = require('../app');
 app.set('port', process.env.PORT || 3000);
 
-
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
 });
 
-
 var io = require('socket.io').listen(server);
-io.set('origins',"*:*");
+//io.set('origins',"*:*");
+/*
+io.use(io_session(session));
+*/
 
+function iomiddleware(socket, next){
 
+  console.log("io middle ware called");
+  next();
+}
 
 (function(){
 
   var self = this;
   self.io_namespace = io.of("/");
+  self.io_namespace.use(iomiddleware);
+
+  io.set('authorization', function (data, accept) {
+/*
+    if (data.headers.cookie) {
+      data.cookie = require('cookie').parse(data.headers.cookie);
+      console.log("authorization called");
+ //     data.sessionID = data.cookie['express.sid'].split('.')[0];
+      if(data.cookie['nickname']){
+        data.nickname = data.cookie['nickname'];
+        console.log("nickname on cookie is " + data.cookie['nickname'])
+      }
+    } else {
+      return accept('No cookie transmitted.', false);
+    }*/
+    accept(null, true);
+    
+  });
 
 //var chat_infra = io.of("/chat_infra");
 self.io_namespace.on('connection', function(socket){
@@ -27,30 +50,41 @@ self.io_namespace.on('connection', function(socket){
   });
 
   socket.on('get_rooms', function(){
-    var rooms = self.io_namespace.adapter.rooms
-
+    var rooms = self.io_namespace.adapter.rooms;
     socket.emit("rooms_list", rooms);
   });
 
   socket.on('join_room', function(data){
+
+
+    if(socket.handshake.headers.cookie){
+      var cookie_data = require('cookie').parse(socket.handshake.headers.cookie);
+      if(cookie_data['nickname']){
+        socket.username = cookie_data['nickname'];
+      }
+    }
+
+    //socket.username = socket.handshake.nickname;
+    console.log("nickname is" + socket.username );
+//    socket.emit('name_set', {'name':socket.handshake.nickname});
+    self.io_namespace.to(socket.id).emit('setname_done', {name:socket.username});
     socket.join(data.room_name);
     socket.one_room_name = data.room_name;
   //  io.sockets.in(room.name).emit('user_entered', {name:socket.username});
   });
 
+/*
   socket.on('set_name', function(data){
     console.log('set name called' + data.name);
     console.log(socket.id);
     socket.username = data.name;
     //socket.emit('setname_done', {name:data.name}); // sent all other than you
- //   socket.broadcast.emit('setname_done', {name:data.name}); // sent all other than you
-    self.io_namespace.to(socket.id).emit('setname_done', {name:data.name});
+    //socket.broadcast.emit('setname_done', {name:data.name}); // sent all other than you
+   // self.io_namespace.to(socket.id).emit('setname_done', {name:data.name});
   });
-
+*/
 
   socket.on('chat_msg', function(data){
-    console.log('chat message called' + data.message);
-    console.log(socket.id);
     if(socket.username){
       data = {
         username: socket.username,
@@ -65,7 +99,6 @@ self.io_namespace.on('connection', function(socket){
     self.io_namespace.to(socket.one_room_name).emit('msg_server', data);
   });
 });
-
 
 
 
